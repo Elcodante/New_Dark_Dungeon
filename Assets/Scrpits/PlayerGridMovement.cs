@@ -5,11 +5,13 @@ public class PlayerGridMovement : MonoBehaviour
 {
     public float moveDistance = 1f;
     public float moveSpeed = 10f;
+    public LayerMask wallLayer;
     private bool isMoving = false;
     private Vector3 targetPosition;
 
     void Start()
     {
+        transform.position = SnapToGrid(transform.position);
         targetPosition = transform.position;
     }
 
@@ -18,11 +20,12 @@ public class PlayerGridMovement : MonoBehaviour
         if (isMoving)
         {
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
-            if(transform.position == targetPosition)
+            if(Vector3.Distance(transform.position, targetPosition) < 0.001f)
             {
+                transform.position = targetPosition;
                 isMoving = false;
-                return;
             }
+            return;
         }
         Vector3 direction = Vector3.zero;
         if (Keyboard.current.wKey.wasPressedThisFrame)
@@ -45,7 +48,27 @@ public class PlayerGridMovement : MonoBehaviour
         {
             return;
         }
-        targetPosition = transform.position + direction * moveDistance;
+        Vector3 newTarget = targetPosition + direction * moveDistance;
+        newTarget = SnapToGrid(newTarget);
+
+        if (IsWallAtPosition(direction))
+        {
+            Debug.Log("Wall detected at position: " + newTarget);
+            return;
+        }
+
+        targetPosition = newTarget;
         isMoving = true;
+    }
+    private Vector3 SnapToGrid(Vector3 position)
+    {
+        return new Vector3(Mathf.Round(position.x), Mathf.Round(position.y), Mathf.Round(position.z));
+    }
+    private bool IsWallAtPosition(Vector3 dir)
+    {
+        float distance = moveDistance;
+        Vector2 size = new Vector2(1f, 1f);
+        RaycastHit2D hit = Physics2D.BoxCast(transform.position, size, 0f, dir.normalized, distance, wallLayer);
+        return hit.collider != null;
     }
 }
