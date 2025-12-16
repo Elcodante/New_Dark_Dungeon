@@ -17,10 +17,6 @@ public class PlayerGridMovement : MonoBehaviour
 
     void Update()
     {
-        if(!LevelManager.Instance.HasMoves())
-        {
-            return;
-        }
         if (isMoving)
         {
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
@@ -29,6 +25,10 @@ public class PlayerGridMovement : MonoBehaviour
                 transform.position = targetPosition;
                 isMoving = false;
             }
+            return;
+        }
+        if (!LevelManager.Instance.HasMoves())
+        {
             return;
         }
         Vector3 direction = Vector3.zero;
