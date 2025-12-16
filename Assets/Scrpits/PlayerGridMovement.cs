@@ -17,6 +17,10 @@ public class PlayerGridMovement : MonoBehaviour
 
     void Update()
     {
+        if(!LevelManager.Instance.HasMoves())
+        {
+            return;
+        }
         if (isMoving)
         {
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
@@ -57,7 +61,9 @@ public class PlayerGridMovement : MonoBehaviour
             return;
         }
 
-        targetPosition = newTarget;
+        LevelManager.Instance.ConsumeMove();
+
+        targetPosition = SnapToGrid(newTarget);
         isMoving = true;
     }
     private Vector3 SnapToGrid(Vector3 position)
