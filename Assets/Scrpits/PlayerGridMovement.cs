@@ -1,14 +1,14 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Tilemaps;
 
 public class PlayerGridMovement : MonoBehaviour
 {
     [Header("Movement")]
-    public float moveDistance = 1f;
     public float moveSpeed = 10f;
 
-    [Header("Collision")]
-    public LayerMask wallLayer;
+    [Header("Wall")]
+    public Tilemap wallTilemap;
 
     public static Vector2Int GridPosition { get; private set; }
 
@@ -17,30 +17,35 @@ public class PlayerGridMovement : MonoBehaviour
 
     private void Start()
     {
-        targetPosition = SnapToGrid(transform.position);
-        transform.position = targetPosition;
-        UpdateGridPosition();
+        Vector3 start = SnapToGrid(transform.position);
+        transform.position = start;
+        targetPosition = start;
+
+        GridPosition = new Vector2Int(
+            Mathf.RoundToInt(start.x),
+            Mathf.RoundToInt(start.y)
+        );
     }
 
     private void Update()
     {
         if (isMoving)
         {
-            UpdateMovement();
+            MoveVisual();
             return;
         }
 
         if (!LevelManager.Instance.HasMoves())
             return;
 
-        Vector3 direction = ReadInput();
-        if (direction == Vector3.zero)
+        Vector2Int dir = ReadInput();
+        if (dir == Vector2Int.zero)
             return;
 
-        TryMove(direction);
+        TryMove(dir);
     }
 
-    private void UpdateMovement()
+    private void MoveVisual()
     {
         transform.position = Vector3.MoveTowards(
             transform.position,
@@ -52,60 +57,48 @@ public class PlayerGridMovement : MonoBehaviour
         {
             transform.position = targetPosition;
             isMoving = false;
-
-            UpdateGridPosition();
             LevelManager.OnPlayerMoveFinished?.Invoke();
         }
     }
 
-    private Vector3 ReadInput()
+    private Vector2Int ReadInput()
     {
-        if (Keyboard.current.wKey.wasPressedThisFrame) return Vector3.up;
-        if (Keyboard.current.sKey.wasPressedThisFrame) return Vector3.down;
-        if (Keyboard.current.aKey.wasPressedThisFrame) return Vector3.left;
-        if (Keyboard.current.dKey.wasPressedThisFrame) return Vector3.right;
-        return Vector3.zero;
+        if (Keyboard.current.wKey.wasPressedThisFrame) return Vector2Int.up;
+        if (Keyboard.current.sKey.wasPressedThisFrame) return Vector2Int.down;
+        if (Keyboard.current.aKey.wasPressedThisFrame) return Vector2Int.left;
+        if (Keyboard.current.dKey.wasPressedThisFrame) return Vector2Int.right;
+        return Vector2Int.zero;
     }
 
-    private void TryMove(Vector3 direction)
+    private void TryMove(Vector2Int direction)
     {
-        if (IsWallInDirection(direction))
+        Vector2Int targetGrid = GridPosition + direction;
+
+        if (IsWallAtGrid(targetGrid))
+        {
+            Debug.Log($"[MOVE BLOCKED] Wall at {targetGrid}");
             return;
+        }
 
         LevelManager.Instance.ConsumeMove();
 
-        targetPosition = SnapToGrid(targetPosition + direction * moveDistance);
+        GridPosition = targetGrid;
+        targetPosition = new Vector3(GridPosition.x, GridPosition.y, 0f);
         isMoving = true;
     }
 
-    private void UpdateGridPosition()
+    private bool IsWallAtGrid(Vector2Int gridPos)
     {
-        GridPosition = new Vector2Int(
-            Mathf.RoundToInt(transform.position.x),
-            Mathf.RoundToInt(transform.position.y)
-        );
+        Vector3Int cell = new Vector3Int(gridPos.x, gridPos.y, 0);
+        return wallTilemap.HasTile(cell);
     }
 
-    private Vector3 SnapToGrid(Vector3 position)
+    private Vector3 SnapToGrid(Vector3 pos)
     {
         return new Vector3(
-            Mathf.Round(position.x),
-            Mathf.Round(position.y),
+            Mathf.Round(pos.x),
+            Mathf.Round(pos.y),
             0f
         );
-    }
-
-    private bool IsWallInDirection(Vector3 direction)
-    {
-        RaycastHit2D hit = Physics2D.BoxCast(
-            transform.position,
-            Vector2.one,
-            0f,
-            direction,
-            moveDistance,
-            wallLayer
-        );
-
-        return hit.collider != null;
     }
 }
