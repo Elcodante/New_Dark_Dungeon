@@ -35,7 +35,7 @@ public class PlayerGridMovement : MonoBehaviour
             return;
         }
 
-        if (!LevelManager.Instance.HasMoves())
+        if (!LevelManager.Instance.HasMoves() || LevelManager.Instance.IsGameOver() || LevelManager.Instance.IsWin())
             return;
 
         Vector2Int dir = ReadInput();

@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections;
-
 public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance;
@@ -12,13 +11,17 @@ public class LevelManager : MonoBehaviour
 
     [Header("Lose")]
     public float loseDelay = 1.5f;
+    public float winDelay = 1.5f;
 
     public static Action<int> OnMovesChanged;
     public static Action OnLose;
+    public static Action OnWin;
+
     public static Action OnPlayerStep;
     public static Action OnPlayerMoveFinished;
 
-    private bool isGameOver;
+    private bool isGameOver = false;
+    private bool isWin = false;
 
     private void Awake()
     {
@@ -27,7 +30,6 @@ public class LevelManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
         Instance = this;
     }
 
@@ -38,7 +40,7 @@ public class LevelManager : MonoBehaviour
 
     public bool HasMoves()
     {
-        return currentMoves > 0 && !isGameOver;
+        return currentMoves > 0 && !isGameOver && !isWin;
     }
 
     public void ConsumeMove()
@@ -65,15 +67,30 @@ public class LevelManager : MonoBehaviour
         StartCoroutine(LoseRoutine());
     }
 
+    public void TriggerWin()
+    {
+        if (isGameOver || isWin)
+            return;
+        
+        isWin = true;
+        isGameOver = true;
+        StartCoroutine(WinRoutine());
+    }
     private IEnumerator LoseRoutine()
     {
         yield return new WaitForSeconds(loseDelay);
         OnLose?.Invoke();
     }
-
+    private IEnumerator WinRoutine()
+    {
+        yield return new WaitForSeconds(winDelay);
+        OnWin?.Invoke();
+        // You can add a win event here if needed
+    }
     public void ResetMoves()
     {
         isGameOver = false;
+        isWin = false;
         currentMoves = maxMoves;
         OnMovesChanged?.Invoke(currentMoves);
     }
@@ -81,5 +98,9 @@ public class LevelManager : MonoBehaviour
     public bool IsGameOver()
     {
         return isGameOver;
+    }
+    public bool IsWin()
+    {
+        return isWin;
     }
 }
