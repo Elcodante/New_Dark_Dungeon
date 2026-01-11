@@ -1,47 +1,33 @@
 using UnityEngine;
 
-public class ToggleTrap : MonoBehaviour
+public class FlamethrowerTrap : MonoBehaviour
 {
-    public bool isActive = true;
+    public bool isActive = false;
 
     private Animator animator;
-    private Vector2Int trapGridPosition;
-
     private void Awake()
     {
         animator = GetComponent<Animator>();
         if(isActive)
         {
-            animator.Play("IdleOn", 0, 1f);
+            animator.Play("IdleOn",0, 1f);
         }
         else
         {
-            animator.Play("IdleOff", 0, 1f);
+            animator.Play("IdleOff",0, 1f);
         }
-        trapGridPosition = new Vector2Int(
-            Mathf.RoundToInt(transform.position.x),
-            Mathf.RoundToInt(transform.position.y)
-        );
-
-        
     }
-
     private void OnEnable()
     {
         LevelManager.OnPlayerStep += Toggle;
-        LevelManager.OnPlayerMoveFinished += CheckKill;
     }
-
     private void OnDisable()
     {
         LevelManager.OnPlayerStep -= Toggle;
-        LevelManager.OnPlayerMoveFinished -= CheckKill;
     }
-
     private void Toggle()
     {
         isActive = !isActive;
-
         if (isActive)
         {
             animator.ResetTrigger("ToOff");
@@ -53,13 +39,19 @@ public class ToggleTrap : MonoBehaviour
             animator.SetTrigger("ToOff");
         }
     }
-    private void CheckKill()
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if (!isActive)
-            return;
-        if (trapGridPosition == PlayerGridMovement.GridPosition)
-        {           
+        Debug.Log($"Trigger entered by {other.name}, IsActive={isActive}");
+
+        if (!isActive) return;
+
+        if (other.CompareTag("Player"))
+        {
+            Debug.Log("Player killed by flamethrower");
             LevelManager.Instance.TriggerLose();
         }
     }
+
+
 }
+
