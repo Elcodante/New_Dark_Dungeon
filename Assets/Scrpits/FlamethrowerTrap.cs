@@ -39,7 +39,7 @@ public class FlamethrowerTrap : MonoBehaviour
             animator.SetTrigger("ToOff");
         }
     }
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerStay2D(Collider2D other)
     {
         Debug.Log($"Trigger entered by {other.name}, IsActive={isActive}");
 
@@ -51,7 +51,5 @@ public class FlamethrowerTrap : MonoBehaviour
             LevelManager.Instance.TriggerLose();
         }
     }
-
-
 }
 
