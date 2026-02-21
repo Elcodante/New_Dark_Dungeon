@@ -10,6 +10,8 @@ public class PlayerGridMovement : MonoBehaviour
     [Header("Wall")]
     public Tilemap wallTilemap;
 
+    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private Animator animator;
     public static Vector2Int GridPosition { get; private set; }
 
     private bool isMoving;
@@ -59,6 +61,7 @@ public class PlayerGridMovement : MonoBehaviour
             isMoving = false;
             LevelManager.OnPlayerMoveFinished?.Invoke();
         }
+        UpdateFacing(targetPosition - transform.position);
     }
 
     private Vector2Int ReadInput()
@@ -100,5 +103,33 @@ public class PlayerGridMovement : MonoBehaviour
             Mathf.Round(pos.y),
             0f
         );
+    }
+    private void UpdateFacing(Vector2 moveDir)
+    {
+        if (moveDir.x > 0)
+        {
+            spriteRenderer.flipX = false;
+        }
+        else if (moveDir.x < 0)
+        {
+            spriteRenderer.flipX = true;
+        }
+    }
+
+    private void OnEnable()
+    {
+        LevelManager.OnLoseStarted += PlayDeath;
+    }
+    private void OnDisable()
+    {
+        LevelManager.OnLoseStarted -= PlayDeath;
+    }
+    private void PlayDeath()
+    {
+        animator.SetTrigger("Die");
+    }
+    public void OnDeathAnimationFinished()
+    {
+        LevelManager.Instance.NotifyDeathAnimationFinished();
     }
 }

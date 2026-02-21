@@ -23,6 +23,8 @@ public class LevelManager : MonoBehaviour
     private bool isGameOver = false;
     private bool isWin = false;
 
+    public static Action OnLoseStarted;
+    public static Action OnLoseCompleted;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -64,7 +66,8 @@ public class LevelManager : MonoBehaviour
             return;
 
         isGameOver = true;
-        StartCoroutine(LoseRoutine());
+        OnLoseStarted?.Invoke();
+        Debug.Log("Player has lost. Starting lose routine.");
     }
 
     public void TriggerWin()
@@ -75,11 +78,6 @@ public class LevelManager : MonoBehaviour
         isWin = true;
         isGameOver = true;
         StartCoroutine(WinRoutine());
-    }
-    private IEnumerator LoseRoutine()
-    {
-        yield return new WaitForSeconds(loseDelay);
-        OnLose?.Invoke();
     }
     private IEnumerator WinRoutine()
     {
@@ -102,5 +100,9 @@ public class LevelManager : MonoBehaviour
     public bool IsWin()
     {
         return isWin;
+    }
+    public void NotifyDeathAnimationFinished()
+    {
+        OnLoseCompleted?.Invoke();
     }
 }
