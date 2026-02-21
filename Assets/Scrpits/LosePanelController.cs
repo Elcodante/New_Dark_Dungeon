@@ -11,11 +11,11 @@ public class LosePanelController : MonoBehaviour
     }
     void OnEnable()
     {
-        LevelManager.OnLose += ShowLosePanel;
+        LevelManager.OnLoseCompleted += ShowLosePanel;
     }
     void OnDisable()
     {
-        LevelManager.OnLose -= ShowLosePanel;
+        LevelManager.OnLoseCompleted -= ShowLosePanel;
     }
     void ShowLosePanel()
     {

@@ -197,7 +197,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.23137257, g: 0.14117648, b: 0.23137257, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -1479,7 +1479,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c0754e1b812a124b85f969be33291d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArrowTrap
-  isActive: 0
+  isActive: 1
   direction: 1
   arrowPrefab: {fileID: 5829969481871382026, guid: f939ab17e577be04d9ddba63e1935736, type: 3}
   firePoint: {fileID: 476208064}
@@ -3405,6 +3405,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerGridMovement
   moveSpeed: 5
   wallTilemap: {fileID: 421488738}
+  spriteRenderer: {fileID: 634349152}
+  animator: {fileID: 634349158}
 --- !u!50 &634349156
 Rigidbody2D:
   serializedVersion: 5
