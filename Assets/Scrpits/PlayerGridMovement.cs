@@ -82,6 +82,13 @@ public class PlayerGridMovement : MonoBehaviour
             return;
         }
 
+        if (DoorManager.Instance.IsBlocked(targetGrid))
+        {
+            Door door = DoorManager.Instance.GetDoor(targetGrid);
+            door.TryOpen();
+            return;
+        }
+
         LevelManager.Instance.ConsumeMove();
 
         GridPosition = targetGrid;
