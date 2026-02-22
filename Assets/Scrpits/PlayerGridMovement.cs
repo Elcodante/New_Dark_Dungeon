@@ -23,10 +23,9 @@ public class PlayerGridMovement : MonoBehaviour
         transform.position = start;
         targetPosition = start;
 
-        GridPosition = new Vector2Int(
-            Mathf.RoundToInt(start.x),
-            Mathf.RoundToInt(start.y)
-        );
+        Vector3Int cell = wallTilemap.WorldToCell(start);
+        GridPosition = new Vector2Int(cell.x, cell.y);
+
     }
 
     private void Update()
@@ -86,7 +85,8 @@ public class PlayerGridMovement : MonoBehaviour
         LevelManager.Instance.ConsumeMove();
 
         GridPosition = targetGrid;
-        targetPosition = new Vector3(GridPosition.x, GridPosition.y, 0f);
+        Vector3Int cell = new Vector3Int(targetGrid.x, targetGrid.y, 0);
+        targetPosition = wallTilemap.GetCellCenterWorld(cell);
         isMoving = true;
     }
 
@@ -98,11 +98,8 @@ public class PlayerGridMovement : MonoBehaviour
 
     private Vector3 SnapToGrid(Vector3 pos)
     {
-        return new Vector3(
-            Mathf.Round(pos.x),
-            Mathf.Round(pos.y),
-            0f
-        );
+        Vector3Int cell = wallTilemap.WorldToCell(pos);
+        return wallTilemap.GetCellCenterWorld(cell);
     }
     private void UpdateFacing(Vector2 moveDir)
     {
